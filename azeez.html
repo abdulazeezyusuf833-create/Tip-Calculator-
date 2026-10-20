@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triple Step Counter</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 20px;
+            margin: 0 0 10px 0;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            height: calc(100vh - 60px);
+        }
+
+        .counter {
+            flex: 1;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 12px;
+        }
+
+        .counter.a { border-top: 3px solid #818cf8; }
+        .counter.b { border-top: 3px solid #38bdf8; }
+        .counter.c { border-top: 3px solid #34d399; }
+
+        .card-title { font-size: 14px; margin: 0 0 6px 0; }
+
+        .range-badge {
+            font-size: 10px;
+            color: #94a3b8;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .value {
+            text-align: center;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 8px;
+            font-size: 34px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .counter.a .value { color: #a5b4fc; }
+        .counter.b .value { color: #7dd3fc; }
+        .counter.c .value { color: #6ee7b7; }
+
+        .set-row { display: flex; gap: 5px; margin-bottom: 8px; }
+
+        .set-row input {
+            flex: 1;
+            width: 60px;
+            padding: 6px;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            background: #0f172a;
+            color: white;
+            font-size: 12px;
+        }
+
+        .set-row button {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            background: #334155;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .step-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 4px 6px;
+            margin-bottom: 8px;
+        }
+
+        .step-row span { font-size: 12px; color: #cbd5e1; }
+
+        .step-row button {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #475569;
+            border-radius: 5px;
+            background: #1e293b;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .step-value { font-size: 13px; font-weight: bold; color: #c4b5fd; }
+
+        .limits { display: flex; gap: 5px; margin-bottom: 8px; }
+
+        .limit-field { flex: 1; }
+
+        .limit-field label {
+            font-size: 10px;
+            color: #94a3b8;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .limit-field input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            background: #0f172a;
+            color: white;
+            font-size: 12px;
+        }
+
+        .buttons { display: flex; gap: 6px; margin-bottom: 8px; }
+
+        .buttons button {
+            flex: 1;
+            padding: 10px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-minus { background: #334155; color: white; }
+
+        .counter.a .btn-plus { background: #6366f1; color: white; }
+        .counter.b .btn-plus { background: #0ea5e9; color: white; }
+        .counter.c .btn-plus { background: #10b981; color: white; }
+
+        .reset-row { display: flex; gap: 5px; margin-bottom: 6px; }
+
+        .reset-row button {
+            flex: 1;
+            padding: 6px 0;
+            background: transparent;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: #cbd5e1;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .message {
+            font-size: 11px;
+            text-align: center;
+            color: #fbbf24;
+            min-height: 14px;
+            margin: 0;
+        }
+
+        .message.error { color: #f87171; }
+    </style>
+</head>
+<body>
+
+    <h1>Triple Step Counter</h1>
+
+    <div class="row">
+
+        <!-- ========== COUNTER A ========== -->
+        <div class="counter a">
+            <h3 class="card-title">Counter A</h3>
+            <span class="range-badge" id="range-a"></span>
+            <div class="value" id="value-a">0</div>
+
+            <div class="set-row">
+                <input type="number" id="setInput-a" placeholder="Type value">
+                <button onclick="setCustom('a')">Set</button>
+            </div>
+
+            <div class="step-row">
+                <span>Step</span>
+                <button onclick="stepDown('a')">-</button>
+                <span class="step-value" id="stepVal-a">1</span>
+                <button onclick="stepUp('a')">+</button>
+            </div>
+
+            <div class="limits">
+                <div class="limit-field">
+                    <label>Min</label>
+                    <input type="number" id="minInput-a" value="0">
+                </div>
+                <div class="limit-field">
+                    <label>Max</label>
+                    <input type="number" id="maxInput-a" value="100">
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-minus" onclick="decrement('a')">-</button>
+                <button class="btn-plus" onclick="increment('a')">+</button>
+            </div>
+
+            <div class="reset-row">
+                <button onclick="resetMin('a')">To Min</button>
+                <button onclick="resetZero('a')">To 0</button>
+            </div>
+
+            <p class="message" id="msg-a"></p>
+        </div>
+
+        <!-- ========== COUNTER B ========== -->
+        <div class="counter b">
+            <h3 class="card-title">Counter B</h3>
+            <span class="range-badge" id="range-b"></span>
+            <div class="value" id="value-b">50</div>
+
+            <div class="set-row">
+                <input type="number" id="setInput-b" placeholder="Type value">
+                <button onclick="setCustom('b')">Set</button>
+            </div>
+
+            <div class="step-row">
+                <span>Step</span>
+                <button onclick="stepDown('b')">-</button>
+                <span class="step-value" id="stepVal-b">5</span>
+                <button onclick="stepUp('b')">+</button>
+            </div>
+
+            <div class="limits">
+                <div class="limit-field">
+                    <label>Min</label>
+                    <input type="number" id="minInput-b" value="-50">
+                </div>
+                <div class="limit-field">
+                    <label>Max</label>
+                    <input type="number" id="maxInput-b" value="200">
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-minus" onclick="decrement('b')">-</button>
+                <button class="btn-plus" onclick="increment('b')">+</button>
+            </div>
+
+            <div class="reset-row">
+                <button onclick="resetMin('b')">To Min</button>
+                <button onclick="resetZero('b')">To 0</button>
+            </div>
+
+            <p class="message" id="msg-b"></p>
+        </div>
+
+        <!-- ========== COUNTER C ========== -->
+        <div class="counter c">
+            <h3 class="card-title">Counter C</h3>
+            <span class="range-badge" id="range-c"></span>
+            <div class="value" id="value-c">10</div>
+
+            <div class="set-row">
+                <input type="number" id="setInput-c" placeholder="Type value">
+                <button onclick="setCustom('c')">Set</button>
+            </div>
+
+            <div class="step-row">
+                <span>Step</span>
+                <button onclick="stepDown('c')">-</button>
+                <span class="step-value" id="stepVal-c">2</span>
+                <button onclick="stepUp('c')">+</button>
+            </div>
+
+            <div class="limits">
+                <div class="limit-field">
+                    <label>Min</label>
+                    <input type="number" id="minInput-c" value="-100">
+                </div>
+                <div class="limit-field">
+                    <label>Max</label>
+                    <input type="number" id="maxInput-c" value="1000">
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-minus" onclick="decrement('c')">-</button>
+                <button class="btn-plus" onclick="increment('c')">+</button>
+            </div>
+
+            <div class="reset-row">
+                <button onclick="resetMin('c')">To Min</button>
+                <button onclick="resetZero('c')">To 0</button>
+            </div>
+
+            <p class="message" id="msg-c"></p>
+        </div>
+
+    </div>
+
+    <script>
+        // ---------------------------------------------------
+        // STATE: one object per counter.
+        // An object is just a box that holds several numbers
+        // under one name.  Example: A.value, A.step, A.min, A.max
+        // ---------------------------------------------------
+
+        var A = { value: 0,  step: 1, min: 0,    max: 100  };
+        var B = { value: 50, step: 5, min: -50,  max: 200  };
+        var C = { value: 10, step: 2, min: -100, max: 1000 };
+
+        // ---------------------------------------------------
+        // SHOW: put the numbers on screen.
+        // ---------------------------------------------------
+
+        function show() {
+            document.getElementById("value-a").innerHTML = A.value;
+            document.getElementById("stepVal-a").innerHTML = A.step;
+            document.getElementById("range-a").innerHTML = A.min + " to " + A.max;
+
+            document.getElementById("value-b").innerHTML = B.value;
+            document.getElementById("stepVal-b").innerHTML = B.step;
+            document.getElementById("range-b").innerHTML = B.min + " to " + B.max;
+
+            document.getElementById("value-c").innerHTML = C.value;
+            document.getElementById("stepVal-c").innerHTML = C.step;
+            document.getElementById("range-c").innerHTML = C.min + " to " + C.max;
+        }
+
+        // ---------------------------------------------------
+        // PICK: return the object that matches the id.
+        // This is the ONLY trick we use, and it's a simple if.
+        // ---------------------------------------------------
+
+        function pick(id) {
+            if (id === "a") { return A; }
+            if (id === "b") { return B; }
+            return C;
+        }
+
+        // ---------------------------------------------------
+        // MESSAGE
+        // ---------------------------------------------------
+
+        function showMessage(id, text, isError) {
+            var box = document.getElementById("msg-" + id);
+            box.innerHTML = text;
+            if (isError === true) {
+                box.style.color = "#f87171";
+            } else {
+                box.style.color = "#fbbf24";
+            }
+        }
+
+        // ---------------------------------------------------
+        // INCREMENT / DECREMENT
+        // "c" is the counter object we picked above.
+        // ---------------------------------------------------
+
+        function increment(id) {
+            var c = pick(id);
+            var result = c.value + c.step;
+
+            if (result > c.max) {
+                c.value = c.max;
+                showMessage(id, "Maximum reached (" + c.max + ")", true);
+            } else if (result < c.min) {
+                c.value = c.min;
+                showMessage(id, "Minimum reached (" + c.min + ")", true);
+            } else {
+                c.value = result;
+                showMessage(id, "", false);
+            }
+            show();
+        }
+
+        function decrement(id) {
+            var c = pick(id);
+            var result = c.value - c.step;
+
+            if (result > c.max) {
+                c.value = c.max;
+                showMessage(id, "Maximum reached (" + c.max + ")", true);
+            } else if (result < c.min) {
+                c.value = c.min;
+                showMessage(id, "Minimum reached (" + c.min + ")", true);
+            } else {
+                c.value = result;
+                showMessage(id, "", false);
+            }
+            show();
+        }
+
+        // ---------------------------------------------------
+        // STEP UP / DOWN
+        // ---------------------------------------------------
+
+        function stepUp(id) {
+            var c = pick(id);
+            c.step = c.step + 1;
+            show();
+        }
+
+        function stepDown(id) {
+            var c = pick(id);
+            if (c.step > 1) {
+                c.step = c.step - 1;
+            }
+            show();
+        }
+
+        // ---------------------------------------------------
+        // SET CUSTOM VALUE
+        // ---------------------------------------------------
+
+        function setCustom(id) {
+            var c = pick(id);
+            var box = document.getElementById("setInput-" + id);
+            var number = Number(box.value);
+
+            if (box.value === "" || isNaN(number)) {
+                showMessage(id, "Enter a number", true);
+                return;
+            }
+
+            if (number < c.min) {
+                c.value = c.min;
+                showMessage(id, "Too small, set to " + c.min, true);
+            } else if (number > c.max) {
+                c.value = c.max;
+                showMessage(id, "Too big, set to " + c.max, true);
+            } else {
+                c.value = number;
+                showMessage(id, "Value set", false);
+            }
+
+            box.value = "";
+            show();
+        }
+
+        // ---------------------------------------------------
+        // UPDATE MIN / MAX
+        // ---------------------------------------------------
+
+        function updateLimits(id) {
+            var c = pick(id);
+            var minBox = document.getElementById("minInput-" + id);
+            var maxBox = document.getElementById("maxInput-" + id);
+            var newMin = Number(minBox.value);
+            var newMax = Number(maxBox.value);
+
+            if (isNaN(newMin) || isNaN(newMax)) {
+                showMessage(id, "Min and Max must be numbers", true);
+                return;
+            }
+            if (newMin >= newMax) {
+                showMessage(id, "Min must be less than Max", true);
+                return;
+            }
+
+            c.min = newMin;
+            c.max = newMax;
+
+            if (c.value < c.min) { c.value = c.min; }
+            if (c.value > c.max) { c.value = c.max; }
+
+            showMessage(id, "Limits updated", false);
+            show();
+        }
+
+        // ---------------------------------------------------
+        // RESET
+        // ---------------------------------------------------
+
+        function resetMin(id) {
+            var c = pick(id);
+            c.value = c.min;
+            showMessage(id, "Reset to " + c.min, false);
+            show();
+        }
+
+        function resetZero(id) {
+            var c = pick(id);
+            if (0 < c.min || 0 > c.max) {
+                c.value = c.min;
+                showMessage(id, "0 is out of range", true);
+            } else {
+                c.value = 0;
+                showMessage(id, "Reset to 0", false);
+            }
+            show();
+        }
+
+        // ---------------------------------------------------
+        // START
+        // ---------------------------------------------------
+        show();
+    </script>
+
+</body>
+</html>
