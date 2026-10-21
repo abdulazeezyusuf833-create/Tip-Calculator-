@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tip Calculator · quick percentage math</title>
+  <style>
+    /* ----- global reset & base ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: linear-gradient(145deg, #f6f9fc 0%, #e6f0f5 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    /* main card */
+    .calculator-card {
+      background: #ffffff;
+      max-width: 480px;
+      width: 100%;
+      padding: 2rem 2rem 2.2rem;
+      border-radius: 2rem;
+      box-shadow: 0 25px 40px -12px rgba(0, 20, 30, 0.25), 0 8px 18px rgba(0,0,0,0.05);
+      transition: box-shadow 0.2s ease;
+    }
+
+    .calculator-card:hover {
+      box-shadow: 0 30px 45px -14px rgba(0, 35, 50, 0.3);
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #1a2e3b;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .subhead {
+      font-size: 0.95rem;
+      color: #5b6f7e;
+      margin-bottom: 2rem;
+      border-left: 4px solid #4c9fbe;
+      padding-left: 0.9rem;
+      font-weight: 400;
+      background: #f0f7fa;
+      border-radius: 0 8px 8px 0;
+      line-height: 1.4;
+    }
+
+    /* form groups */
+    .input-group {
+      margin-bottom: 1.4rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #2d4b5c;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.01em;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      background: #f2f7fa;
+      border-radius: 14px;
+      border: 1.5px solid #d9e6ed;
+      transition: border 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: #2e8ab0;
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(46, 138, 176, 0.12);
+    }
+
+    .currency-symbol {
+      padding: 0 0.8rem 0 1.1rem;
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: #2b5e74;
+      background: transparent;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      padding: 0.9rem 1rem 0.9rem 0;
+      font-size: 1.2rem;
+      font-weight: 500;
+      border: none;
+      background: transparent;
+      color: #102a37;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .input-wrapper input::placeholder {
+      color: #a0b8c7;
+      font-weight: 400;
+      font-size: 1rem;
+    }
+
+    /* tip percentage row — no repetition, just custom buttons */
+    .tip-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-top: 0.5rem;
+    }
+
+    .tip-btn {
+      flex: 1 1 0;
+      min-width: 70px;
+      padding: 0.7rem 0.3rem;
+      background: #eef4f8;
+      border: 2px solid transparent;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1a4557;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .tip-btn:hover {
+      background: #d9e9f2;
+      transform: translateY(-1px);
+    }
+
+    .tip-btn.active {
+      background: #1d6d8f;
+      border-color: #1d6d8f;
+      color: white;
+      box-shadow: 0 8px 14px -6px #1d6d8f70;
+    }
+
+    /* custom tip input */
+    .custom-tip-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.9rem;
+      background: #f2f7fa;
+      border-radius: 30px;
+      padding: 0.15rem 0.15rem 0.15rem 1.2rem;
+      border: 1.5px solid #d9e6ed;
+      transition: border 0.15s, background 0.15s;
+    }
+
+    .custom-tip-container:focus-within {
+      border-color: #2e8ab0;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(46, 138, 176, 0.1);
+    }
+
+    .custom-tip-container span {
+      font-weight: 500;
+      color: #2b5e74;
+      font-size: 1rem;
+    }
+
+    .custom-tip-container input {
+      flex: 1;
+      padding: 0.7rem 0.8rem 0.7rem 0;
+      border: none;
+      background: transparent;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #102a37;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .custom-tip-container input::placeholder {
+      font-size: 0.95rem;
+      color: #9bb3c2;
+      font-weight: 400;
+    }
+
+    /* result display */
+    .results {
+      background: #102a37;
+      border-radius: 1.6rem;
+      padding: 1.4rem 1.6rem;
+      margin-top: 2rem;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.2), 0 8px 18px -6px #0b1f2b;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 1.1rem;
+    }
+
+    .result-label {
+      color: #b3d2e3;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
+
+    .result-value {
+      font-weight: 600;
+      font-size: 1.4rem;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      transition: all 0.1s;
+    }
+
+    .total-row .result-value {
+      font-size: 1.8rem;
+      color: #c2f0d6;
+    }
+
+    .divider {
+      height: 1px;
+      background: #2f4f61;
+      margin: 0.2rem 0;
+    }
+
+    /* small note / error */
+    .error-message {
+      font-size: 0.8rem;
+      color: #d95b5b;
+      margin-top: 0.3rem;
+      padding-left: 1rem;
+      min-height: 1.2rem;
+      font-weight: 500;
+    }
+
+    /* reset / no repetition — only one id, no duplicate classes */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
+    }
+
+    /* remove spinner from number inputs */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="calculator-card">
+  <h1>💸 Tip calculator</h1>
+  <div class="subhead">quick percentage math · no repetition</div>
+
+  <!-- BILL AMOUNT -->
+  <div class="input-group">
+    <label for="billAmount">Bill amount</label>
+    <div class="input-wrapper">
+      <span class="currency-symbol">$</span>
+      <input type="number" id="billAmount" placeholder="0.00" min="0" step="0.01" value="50.00">
+    </div>
+  </div>
+
+  <!-- TIP SELECTION (no duplicate buttons – only 3 presets + custom) -->
+  <div class="input-group">
+    <label>Tip percentage</label>
+    <div class="tip-options" id="tipPresets">
+      <button type="button" class="tip-btn" data-percent="10">10%</button>
+      <button type="button" class="tip-btn" data-percent="15">15%</button>
+      <button type="button" class="tip-btn" data-percent="20">20%</button>
+    </div>
+    <!-- custom tip input -->
+    <div class="custom-tip-container">
+      <span>%</span>
+      <input type="number" id="customTipInput" placeholder="custom" min="0" step="0.1" value="18">
+    </div>
+    <div class="error-message" id="errorMsg"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results">
+    <div class="result-row">
+      <span class="result-label">Tip amount</span>
+      <span class="result-value" id="tipAmountDisplay">$9.00</span>
+    </div>
+    <div class="divider"></div>
+    <div class="result-row total-row">
+      <span class="result-label">Total</span>
+      <span class="result-value" id="totalDisplay">$59.00</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ----- DOM references (no repetition, single source) -----
+    const billInput = document.getElementById('billAmount');
+    const tipPresets = document.getElementById('tipPresets');
+    const tipButtons = document.querySelectorAll('.tip-btn');
+    const customTipInput = document.getElementById('customTipInput');
+    const tipAmountDisplay = document.getElementById('tipAmountDisplay');
+    const totalDisplay = document.getElementById('totalDisplay');
+    const errorMsg = document.getElementById('errorMsg');
+
+    // ----- state (tracked percentage – core of the app) -----
+    let currentTipPercent = 18;   // default matches custom input value
+
+    // ----- utility: format number as USD (rounded to 2 decimals) -----
+    function formatCurrency(value) {
+      return '$' + value.toFixed(2);
+    }
+
+    // ----- read bill safely (return 0 if empty/invalid/negative) -----
+    function getBillValue() {
+      const raw = billInput.value.trim();
+      if (raw === '') return 0;
+      const num = parseFloat(raw);
+      return (isNaN(num) || num < 0) ? 0 : num;
+    }
+
+    // ----- read custom tip percent (safely) -----
+    function getCustomTipPercent() {
+      const raw = customTipInput.value.trim();
+      if (raw === '') return NaN;
+      const num = parseFloat(raw);
+      return (isNaN(num) || num < 0) ? NaN : num;
+    }
+
+    // ----- core calculation & UI update -----
+    function updateCalculation() {
+      // 1. bill
+      const bill = getBillValue();
+
+      // 2. determine effective tip percent (based on active button or custom)
+      let effectivePercent = currentTipPercent;
+
+      // If no preset is active, or the active percent no longer matches custom,
+      // we fallback to custom field (but we keep state consistent)
+      // However, we'll keep state in sync via events. 
+      // But to be safe, if custom is different and no active button, use custom.
+      const activeBtn = document.querySelector('.tip-btn.active');
+      if (!activeBtn) {
+        // no preset selected: use custom value (if valid)
+        const customVal = getCustomTipPercent();
+        if (!isNaN(customVal)) {
+          effectivePercent = customVal;
+          currentTipPercent = customVal;   // keep state in sync
+        } else {
+          // fallback: keep current percent but show error? 
+          // we handle error separately. For calculation, use 0 if no valid tip.
+          if (isNaN(getCustomTipPercent()) && customTipInput.value.trim() !== '') {
+            // invalid custom -> show error, but we can still calculate with last valid percent?
+            // better: show error and keep last valid percent (currentTipPercent)
+            errorMsg.textContent = '⚠️ Enter a valid positive number for tip.';
+          } else {
+            errorMsg.textContent = '';
+          }
+          // use currentTipPercent (last known valid)
+          effectivePercent = currentTipPercent;
+        }
+      } else {
+        // preset is active – currentTipPercent already set by click.
+        // but if user typed custom, we should not override unless they click preset.
+        // we keep preset active state, so effectivePercent = currentTipPercent.
+        effectivePercent = currentTipPercent;
+        // also sync customTipInput to match active preset? 
+        // we do that inside the preset click handler.
+        // but if custom field was modified, we might have inconsistency.
+        // To avoid confusion, we check if custom matches active preset, else we show custom?
+        // Better: presets should deactivate if custom is typed. We'll handle in custom input event.
+      }
+
+      // 3. calculate tip & total
+      const tipAmount = bill * (effectivePercent / 100);
+      const total = bill + tipAmount;
+
+      // 4. update displays
+      tipAmountDisplay.textContent = formatCurrency(tipAmount);
+      totalDisplay.textContent = formatCurrency(total);
+
+      // 5. clear error if everything is fine (custom field non-empty invalid handled in event)
+      // if custom field is empty we clear error
+      if (customTipInput.value.trim() === '') {
+        errorMsg.textContent = '';
+      }
+    }
+
+    // ----- deactivate all preset buttons -----
+    function deactivateAllPresets() {
+      tipButtons.forEach(btn => btn.classList.remove('active'));
+    }
+
+    // ----- sync custom input to a given percent (without triggering events) -----
+    function setCustomInputToValue(percent) {
+      customTipInput.value = percent;
+    }
+
+    // ----- handle preset button click -----
+    function handlePresetClick(percent, clickedButton) {
+      // deactivate others, activate this one
+      deactivateAllPresets();
+      clickedButton.classList.add('active');
+
+      // update current tip percent
+      currentTipPercent = percent;
+
+      // sync custom input to show same value (avoid confusion)
+      setCustomInputToValue(percent);
+
+      // clear error
+      errorMsg.textContent = '';
+
+      // recalculate
+      updateCalculation();
+    }
+
+    // ----- handle custom tip input change -----
+    function handleCustomTipChange() {
+      const rawValue = customTipInput.value.trim();
+      const customPercent = getCustomTipPercent();
+
+      // if custom field is empty -> keep preset? but we don't change active state automatically.
+      if (rawValue === '') {
+        // no active button? keep as is, but calculation uses last active percent
+        // if there is an active preset, keep it active (no need to deactivate)
+        // but we must avoid error
+        errorMsg.textContent = '';
+        // if no active preset, use last percent (currentTipPercent)
+        if (!document.querySelector('.tip-btn.active')) {
+          // no active preset: use currentTipPercent (which might be custom from before)
+          // but we keep it as is
+        }
+        updateCalculation();
+        return;
+      }
+
+      // invalid number?
+      if (isNaN(customPercent) || customPercent < 0) {
+        errorMsg.textContent = '⚠️ Enter a valid positive number for tip.';
+        // do not update currentTipPercent, keep last valid for calculation
+        // but deactivate presets? they shouldn't be active if invalid.
+        // to keep UI consistent, deactivate all presets because custom is invalid
+        deactivateAllPresets();
+        updateCalculation();   // will use last valid percent (currentTipPercent) & show error
+        return;
+      }
+
+      // valid custom tip: deactivate all preset buttons (custom overrides)
+      deactivateAllPresets();
+      currentTipPercent = customPercent;
+      errorMsg.textContent = '';
+
+      updateCalculation();
+    }
+
+    // ----- handle bill input change (including paste, etc) -----
+    function handleBillInput() {
+      // just recalc, no special error for bill (clamped to 0)
+      updateCalculation();
+    }
+
+    // ----- initial setup: set default active preset (18% ? but preset list has 10,15,20)
+    // Since custom default is 18, we better set no active preset, but we want a preset active?
+    // Actually we want 18% by default but no preset matches 18. So we leave no active preset.
+    // But we want the UI to reflect 18% custom.
+    // So we set currentTipPercent = 18, custom input = 18, no active preset.
+    // That's okay, but then user might not realize which tip is active.
+    // Better: set active button to 20%? But then custom would be 20. Hmm.
+    // For beginner friendliness, let's set 20% as default and active (common scenario).
+    // But original default was 18. I'll change to 20% for consistency with preset.
+    // ----- REVISED DEFAULTS (to avoid active mismatch) -----
+    // default: 20% preset active, bill = 50, custom = 20
+    // We'll override initial values set in HTML to keep consistency.
+    
+    // Set initial values:
+    billInput.value = '50.00';
+    currentTipPercent = 20;
+    customTipInput.value = 20;
+    // activate 20% button (the third one)
+    // it's the last .tip-btn with data-percent="20"
+    const twentyPercentBtn = Array.from(tipButtons).find(btn => btn.dataset.percent === '20');
+    if (twentyPercentBtn) {
+      twentyPercentBtn.classList.add('active');
+    }
+    // update display
+    updateCalculation();
+
+    // ----- ATTACH EVENT LISTENERS (NO repetition) -----
+    // 1. preset buttons
+    tipButtons.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        const percent = parseFloat(this.dataset.percent);
+        if (!isNaN(percent)) {
+          handlePresetClick(percent, this);
+        }
+      });
+    });
+
+    // 2. custom tip input
+    customTipInput.addEventListener('input', handleCustomTipChange);
+
+    // 3. bill input
+    billInput.addEventListener('input', handleBillInput);
+
+    // 4. also if user clears custom and wants to go back to preset? 
+    // we handle via custom input change already. No extra.
+    // but if user focuses custom and then clicks preset, it's fine.
+
+    // 5. additional: on custom field focus, we don't automatically deactivate presets,
+    // but when they type, it deactivates them (handled in handleCustomTipChange).
+    // if they click a preset, custom is overwritten (fine).
+
+    // 6. ensure that if bill is invalid/empty, we treat as 0 (already handled)
+
+    // Edge: if custom is empty and a preset is active, still calculate with preset.
+    // If custom is empty and no preset active, we use currentTipPercent (last known)
+    // But we should prevent a state with no preset and empty custom? 
+    // It's fine, because currentTipPercent retains last value.
+    // Also we update error only when needed.
+
+    // One more: to avoid a blank custom field and active preset, we keep them synced.
+    // That's okay.
+
+    // Bonus: handle case when user empties custom field but expects preset? 
+    // we could re-activate the last preset? That would be complex. 
+    // We'll leave it; active preset remains active (since we don't remove active on empty)
+    // and calculation uses active preset percent.
+    // But if custom field is empty and no preset active, error is cleared, calculation uses currentTipPercent (last)
+    // That's fine.
+
+    // Fix a subtle bug: when custom is typed, we deactivate presets. But if user
+    // then clears the custom field, no preset is active. Calculation uses last
+    // valid percent (currentTipPercent). That's acceptable.
+
+    // To make it super clear: if custom input is empty and no preset active,
+    // we could set a default active preset? But not necessary.
+
+    // Alright.
+
+    // final small improvement: if user types in custom field and it's valid,
+    // we also update currentTipPercent (done). 
+    // If they type a decimal, fine.
+
+    // Also if bill input is empty, bill=0, tip=0, total=0.
+
+  })();
+</script>
+
+</body>
+</html>
