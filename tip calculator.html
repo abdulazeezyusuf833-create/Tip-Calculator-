@@ -488,18 +488,6 @@
       updateCalculation();
     }
 
-    // ----- initial setup: set default active preset (18% ? but preset list has 10,15,20)
-    // Since custom default is 18, we better set no active preset, but we want a preset active?
-    // Actually we want 18% by default but no preset matches 18. So we leave no active preset.
-    // But we want the UI to reflect 18% custom.
-    // So we set currentTipPercent = 18, custom input = 18, no active preset.
-    // That's okay, but then user might not realize which tip is active.
-    // Better: set active button to 20%? But then custom would be 20. Hmm.
-    // For beginner friendliness, let's set 20% as default and active (common scenario).
-    // But original default was 18. I'll change to 20% for consistency with preset.
-    // ----- REVISED DEFAULTS (to avoid active mismatch) -----
-    // default: 20% preset active, bill = 50, custom = 20
-    // We'll override initial values set in HTML to keep consistency.
     
     // Set initial values:
     billInput.value = '50.00';
@@ -530,45 +518,6 @@
 
     // 3. bill input
     billInput.addEventListener('input', handleBillInput);
-
-    // 4. also if user clears custom and wants to go back to preset? 
-    // we handle via custom input change already. No extra.
-    // but if user focuses custom and then clicks preset, it's fine.
-
-    // 5. additional: on custom field focus, we don't automatically deactivate presets,
-    // but when they type, it deactivates them (handled in handleCustomTipChange).
-    // if they click a preset, custom is overwritten (fine).
-
-    // 6. ensure that if bill is invalid/empty, we treat as 0 (already handled)
-
-    // Edge: if custom is empty and a preset is active, still calculate with preset.
-    // If custom is empty and no preset active, we use currentTipPercent (last known)
-    // But we should prevent a state with no preset and empty custom? 
-    // It's fine, because currentTipPercent retains last value.
-    // Also we update error only when needed.
-
-    // One more: to avoid a blank custom field and active preset, we keep them synced.
-    // That's okay.
-
-    // Bonus: handle case when user empties custom field but expects preset? 
-    // we could re-activate the last preset? That would be complex. 
-    // We'll leave it; active preset remains active (since we don't remove active on empty)
-    // and calculation uses active preset percent.
-    // But if custom field is empty and no preset active, error is cleared, calculation uses currentTipPercent (last)
-    // That's fine.
-
-    // Fix a subtle bug: when custom is typed, we deactivate presets. But if user
-    // then clears the custom field, no preset is active. Calculation uses last
-    // valid percent (currentTipPercent). That's acceptable.
-
-    // To make it super clear: if custom input is empty and no preset active,
-    // we could set a default active preset? But not necessary.
-
-    // Alright.
-
-    // final small improvement: if user types in custom field and it's valid,
-    // we also update currentTipPercent (done). 
-    // If they type a decimal, fine.
 
     // Also if bill input is empty, bill=0, tip=0, total=0.
 
