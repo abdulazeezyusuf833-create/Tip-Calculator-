@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ Accordion</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f5f7;
+      color: #222;
+      padding: 30px 15px;
+    }
+
+    .faq {
+      max-width: 600px;
+      margin: 50px auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .intro {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+
+    .item {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .question {
+      width: 100%;
+      padding: 20px;
+      border: none;
+      background: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      text-align: left;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .icon {
+      color: #a7782d;
+      font-size: 22px;
+    }
+
+    .answer {
+      display: none;
+      padding: 0 20px 20px;
+      color: #666;
+      line-height: 1.7;
+    }
+
+    .item.active .answer {
+      display: block;
+    }
+
+    .item.active {
+      border-color: #a7782d;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 26px;
+      }
+
+      .question {
+        padding: 16px;
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="faq">
+    <h1>Frequently Asked Questions</h1>
+
+    <p class="intro">
+      Have questions? Find your answers below.
+    </p>
+
+    <div class="item">
+      <button class="question">
+        <span>What is HTML?</span>
+        <span class="icon">+</span>
+      </button>
+      <div class="answer">
+        HTML is used to create the structure of a webpage.
+      </div>
+    </div>
+
+    <div class="item">
+      <button class="question">
+        <span>What is CSS?</span>
+        <span class="icon">+</span>
+      </button>
+      <div class="answer">
+        CSS styles a webpage with colors, layouts, spacing and fonts.
+      </div>
+    </div>
+
+    <div class="item">
+      <button class="question">
+        <span>What is JavaScript?</span>
+        <span class="icon">+</span>
+      </button>
+      <div class="answer">
+        JavaScript makes a webpage interactive and responsive to user actions.
+      </div>
+    </div>
+
+    <div class="item">
+      <button class="question">
+        <span>Will this website work on mobile?</span>
+        <span class="icon">+</span>
+      </button>
+      <div class="answer">
+        Yes! The design adjusts to smaller screens using CSS media queries.
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const questions = document.querySelectorAll(".question");
+
+    questions.forEach(function(question) {
+      question.addEventListener("click", function() {
+        const item = question.parentElement;
+        const icon = question.querySelector(".icon");
+
+        item.classList.toggle("active");
+
+        if (item.classList.contains("active")) {
+          icon.textContent = "−";
+        } else {
+          icon.textContent = "+";
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
